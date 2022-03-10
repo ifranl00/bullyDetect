@@ -17,6 +17,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import svm
 from sklearn.metrics import precision_recall_fscore_support
 
+
+
 def trainLSTM(Data):
     X_train, X_test, Y_train, Y_test = train_test_split(Data.tweet, Data.type, test_size=0.3)
     vectorizer = CountVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None, max_features=5000)
@@ -27,6 +29,15 @@ def trainLSTM(Data):
     test_data_features = test_data_features.toarray()
 
     max_features = 10000
+
+    early_stopping = callbacks.EarlyStopping(
+        # monitor='accuracy',
+        monitor='acc',
+        min_delta=0.005,
+        patience=2,
+        restore_best_weights=True,
+    )
+
     model = keras.Sequential()
     model.add(layers.Embedding(max_features, 32))
     model.add(layers.LSTM(32))
@@ -39,7 +50,8 @@ def trainLSTM(Data):
 
                         epochs=10,
                         batch_size=128,
-                        validation_split=0.2)
+                        validation_split=0.2,
+                        callbacks=[early_stopping])
 
     print(history.history)
 
