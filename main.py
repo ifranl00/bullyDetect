@@ -98,6 +98,7 @@ def preprocess(tweet):
 
 Data['tweet'] = preprocess(Data['tweet'])
 Data = Data.rename(columns={'class': 'type'})
+Data['type']= Data['type'].map({0: 1, 1: 1, 2: 0})
 #print(Data['tweet'])
 
 # -- End preprocessing --
@@ -107,7 +108,6 @@ Data = Data.rename(columns={'class': 'type'})
 #trainRandomForest(Data)
 #trainSVN(Data)
 trainLSTM(Data)
-
 
 
 
