@@ -7,6 +7,7 @@ import tensorflow as tf
 from tensorflow import keras
 from keras import layers
 from keras import callbacks
+from keras.models import load_model
 
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
@@ -20,7 +21,7 @@ from sklearn.metrics import precision_recall_fscore_support
 
 
 def trainLSTM(Data):
-    X_train, X_test, Y_train, Y_test = train_test_split(Data.tweet, Data.type, test_size=0.3)
+    X_train, X_test, Y_train, Y_test = train_test_split(Data.tweet.head(), Data.type.head(), test_size=0.3)
     vectorizer = CountVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None, max_features=5000)
     train_data_features = vectorizer.fit_transform(X_train)
     train_data_features = train_data_features.toarray()
@@ -41,10 +42,10 @@ def trainLSTM(Data):
 
     model = keras.Sequential([
         layers.Embedding(max_features, 64),
-        layers.LSTM(64),
-        layers.Dropout(0.3),
-        layers.Dense(64, activation='relu'),
-        layers.Dropout(0.3),
+        layers.LSTM(32),
+        #layers.Dropout(0.3),
+        #layers.Dense(64, activation='relu'),
+        #layers.Dropout(0.3),
        # layers.Dense(64, activation='relu'),
         layers.Dense(1, activation='sigmoid'),
     ])
@@ -57,7 +58,7 @@ def trainLSTM(Data):
 
     history = model.fit(train_data_features, Y_train,
 
-                        epochs=5,
+                        epochs=1,
                         batch_size=128,
                         #validation_split=0.2,
                         validation_data=(test_data_features, Y_test),
@@ -83,3 +84,6 @@ def trainLSTM(Data):
     score = model.evaluate(test_data_features, Y_test, verbose=0)
     print("Test loss:", score[0])
     print("Test accuracy:", score[1])
+
+    #Save model
+    model.save('my_model.h5')
