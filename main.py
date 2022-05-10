@@ -1,4 +1,6 @@
 import pandas as pd
+from LSTM import trainLSTM
+from LSTM_w2v import trainLSTM_w2v
 from sklearn.feature_extraction.text import CountVectorizer
 
 from Preprocessing import preprocess, preprocessInp
@@ -9,19 +11,24 @@ from keras.models import load_model
 from Preprocessing import preprocess
 
 # -- Preprocessing of datasets --
-Data = pd.read_csv('DataSet/labeled_data.csv')
-Data['tweet'] = preprocess(Data['tweet'])
-Data = Data.rename(columns={'class': 'type'})
-Data['type']= Data['type'].map({0: 1, 1: 1, 2: 0})
 
-# -- Init trainning --
-#trainRandomForest(Data)
-#trainSVN(Data)
-#trainLSTM(Data)
+
+
+
 
 # -- Web App --
 # source: https://www.youtube.com/watch?v=xl0N7tHiwlw
-model = load_model('my_model.h5')
+
+
+def train():
+    Data = pd.read_csv('DataSet/labeled_data.csv')
+    Data['tweet'] = preprocess(Data['tweet'])
+    Data = Data.rename(columns={'class': 'type'})
+    Data['type'] = Data['type'].map({0: 1, 1: 1, 2: 0})
+    #trainRandomForest(Data)
+    #trainSVN(Data)
+    #trainLSTM(Data)
+    trainLSTM_w2v(Data)
 
 def show_predict_page():
     st.title("Software Developer Bullying Prediction")
@@ -35,6 +42,7 @@ def show_predict_page():
         #preproccessing
         print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
         print(message_input)
+        model = load_model('my_model.h5')
         message_input = preprocessInp(message_input)
         vectorizer = CountVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
                                      max_features=5000)
@@ -44,10 +52,5 @@ def show_predict_page():
         st.subheader(f"The estimated salary is ${prediction[0]:.2f}")
 
 
-show_predict_page()
-
-
-
-
-
-
+#show_predict_page()
+train()

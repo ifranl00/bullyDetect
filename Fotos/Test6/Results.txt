@@ -1,0 +1,5 @@
+loss            0.003558
+accuracy        0.998386
+val_loss        0.546354
+val_accuracy    0.918090
+
