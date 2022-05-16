@@ -20,6 +20,7 @@ from sklearn.metrics import precision_recall_fscore_support , roc_curve,  roc_au
 from keras.layers.embeddings import Embedding
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
+import pickle
 
 
 
@@ -44,10 +45,15 @@ def trainLSTM_w2v(Data):
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(tweets_split)
     X = tokenizer.texts_to_sequences(tweets_split)
+    with open('tokenizer.pickle', 'wb') as handle:
+        pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # lenght of tweet to consider
     maxlentweet = 10
     # add padding
+    print("Antes")
+    print(len(X))
+    print(X[1])
     X = pad_sequences(X, maxlen=maxlentweet)
     print(X.shape)
 
@@ -68,15 +74,16 @@ def trainLSTM_w2v(Data):
 
 
 
-
+    print(X_train[1])
+    print(X_train.shape)
 
     max_features = 10000
 
     early_stopping = callbacks.EarlyStopping(
         # monitor='accuracy',
-        monitor='binary_accuracy',
+        monitor='val_binary_accuracy',
         min_delta=0.005,
-        patience=5,
+        patience=2,
         restore_best_weights=True,
     )
 
@@ -97,10 +104,10 @@ def trainLSTM_w2v(Data):
 
                         epochs=10,
                         batch_size=32,
-                        #validation_split=0.2,
-                        validation_data=(X_test, Y_test),
+                        validation_split=0.2,
+                        #validation_data=(X_test, Y_test),
                         callbacks=[early_stopping])
-
+    #model.save("W2v_model.h5")
     '''
     # ROC AUC curve
     rocAuc = roc_auc_score(Y_test, y_pred)
@@ -112,8 +119,8 @@ def trainLSTM_w2v(Data):
     '''
 
     history_df = pd.DataFrame(history.history)
-    history_df = history_df.rename(columns={'binary_accuracy': 'accuracy'})
-    history_df = history_df.rename(columns={'val_binary_accuracy': 'val_accuracy'})
+    history_df = history_df.rename(columns={'binary_accuracy': 'binary_accuracy'})
+    history_df = history_df.rename(columns={'val_binary_accuracy': 'val_binary_accuracy'})
 
     plt.title("Training and validation loss results")
     sns.lineplot(data=history_df['loss'], label="Training Loss")
@@ -122,8 +129,8 @@ def trainLSTM_w2v(Data):
     plt.ylabel("Loss")
     plt.show()
     plt.title("Training and validation accuracy results")
-    sns.lineplot(data=history_df['accuracy'], label="Training Accuracy")
-    sns.lineplot(data=history_df['val_accuracy'], label="Validation Accuracy")
+    sns.lineplot(data=history_df['binary_accuracy'], label="Training Accuracy")
+    sns.lineplot(data=history_df['val_binary_accuracy'], label="Validation Accuracy")
     plt.xlabel("Epochs")
     plt.ylabel("Accuracy")
     plt.show()

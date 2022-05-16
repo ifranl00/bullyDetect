@@ -1,14 +1,18 @@
+import numpy
 import pandas as pd
 from LSTM import trainLSTM
 from LSTM_w2v import trainLSTM_w2v
 from sklearn.feature_extraction.text import CountVectorizer
-
+import gensim.models.keyedvectors as word2vec #need to use due to depreceated model
+from keras.preprocessing.text import Tokenizer
 from Preprocessing import preprocess, preprocessInp
 import streamlit as st
 import pickle
 import numpy as np
 from keras.models import load_model
 from Preprocessing import preprocess
+import pickle
+from keras.preprocessing.sequence import pad_sequences
 
 # -- Preprocessing of datasets --
 
@@ -40,17 +44,42 @@ def show_predict_page():
     ok = st.button("Detect bullying")
     if ok:
         #preproccessing
-        print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
-        print(message_input)
-        model = load_model('my_model.h5')
+        model = load_model('W2v_model.h5')
         message_input = preprocessInp(message_input)
-        vectorizer = CountVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
-                                     max_features=5000)
-        vectorizedInput = vectorizer.transform([message_input])
-        prediction = model.predict(vectorizedInput)[0]
+
+
+        with open('tokenizer.pickle', 'rb') as handle:
+            tokenizer = pickle.load(handle)
+
+        listInput = []
+        listInput.append(message_input)
+        X = tokenizer.texts_to_sequences(listInput)
+        # lenght of tweet to consider
+        maxlentweet = 10
+        # add padding
+
+
+        X = pad_sequences(X, maxlen=maxlentweet)
+
+
+
+        prediction = model.predict(X)
         print(prediction)
-        st.subheader(f"The estimated salary is ${prediction[0]:.2f}")
 
 
-#show_predict_page()
-train()
+        porcentaje = prediction[0][0] * 100
+
+
+        if (porcentaje < 50):
+            porcentaje = 100 - porcentaje
+
+            st.success(f"NOT bully, with an  {(round(float(porcentaje), 1))} %")
+
+        else:
+            st.error(f"BULLY, with an {(round(float(porcentaje), 1))} %")
+
+
+
+show_predict_page()
+
+#train()

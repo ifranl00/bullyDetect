@@ -30,7 +30,6 @@ print(Data.head())
 print(Data.shape)
 print(Data.describe)
 print(Data.dtypes)
-
 for x in Data.columns:
     print(f"{x}\n{Data[x].unique()[:10]}")
 '''
