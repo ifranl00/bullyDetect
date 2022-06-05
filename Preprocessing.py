@@ -44,8 +44,23 @@ print(missing_values_count[0:10])
 ################## PREPROCESSING: Dealing with hashtags, links and mentions. ##################
 #source: https://www.pluralsight.com/guides/building-a-twitter-sentiment-analysis-in-python
 #----> Hashtags
+
+# source: https://stackoverflow.com/questions/68448243/efficient-way-to-split-multi-word-hashtag-in-python
 def hashtagParsing(tweet): #TODO: just delete # for detecting at least when there are composed by one word and split the ones that are hiHowAre form.
-    return re.sub(r'\B#\w*[a-zA-Z]+\w*','<hashtag>', tweet, flags=FLAGS)
+
+    messageWIthParsedHastaghs = []
+    #loop and split the message in words
+    for word in tweet.split():
+        if word.startswith('#') and len(word) > 1: #find hashtags
+            word = list(word)
+            word[1] = word[1].upper()
+            word = ''.join(word)
+            word = ' '.join(re.findall('[A-Z][^A-Z]*', word))
+            messageWIthParsedHastaghs.append(word) # append the words of the hastahgs as normal words
+
+    return " ".join(messageWIthParsedHastaghs)
+    # uncomment to only get rid of the hashtags of each tweet/ social network message
+        #return re.sub(r'\B#\w*[a-zA-Z]+\w*','<hashtag>', tweet, flags=FLAGS)
 
 def parseMention(tweet):
     return re.sub('@[\w\-]+', '<user>', tweet)

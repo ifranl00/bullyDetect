@@ -2,6 +2,8 @@ import numpy
 import pandas as pd
 from LSTM import trainLSTM
 from LSTM_w2v import trainLSTM_w2v
+from RandomForest import trainRandomForest
+from SVN import trainSVN
 from sklearn.feature_extraction.text import CountVectorizer
 import gensim.models.keyedvectors as word2vec #need to use due to depreceated model
 from keras.preprocessing.text import Tokenizer
@@ -32,7 +34,7 @@ def train():
     #trainRandomForest(Data)
     #trainSVN(Data)
     #trainLSTM(Data)
-    trainLSTM_w2v(Data)
+    #trainLSTM_w2v(Data)
 
 def show_predict_page():
     st.title("Software Developer Bullying Prediction")
@@ -80,6 +82,6 @@ def show_predict_page():
 
 
 
-show_predict_page()
+#show_predict_page()
 
-#train()
+train()
